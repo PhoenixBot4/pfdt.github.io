@@ -54,6 +54,7 @@
             border-radius: 50%;
             filter: blur(50px);
             opacity: 0.25;
+            transition: all 0.5s ease;
         }
 
         .orb1 {
@@ -227,17 +228,82 @@
             letter-spacing: 0.5px;
         }
 
-        /* Link Sharing Section */
-        .link-sharing-section {
-            background: linear-gradient(135deg, rgba(124, 58, 237, 0.05), rgba(20, 184, 166, 0.05));
-            border: 1px dashed rgba(124, 58, 237, 0.3);
-            border-radius: 12px;
+        /* Top Control Bar */
+        .top-control-bar {
+            background: linear-gradient(135deg, rgba(124, 58, 237, 0.1), rgba(20, 184, 166, 0.08));
+            border: 1px solid rgba(124, 58, 237, 0.2);
+            border-radius: 15px;
             padding: 20px;
-            margin-top: 25px;
+            margin-bottom: 30px;
+            animation: slideUp 0.6s ease-out;
+            display: none;
+            box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
+            backdrop-filter: blur(5px);
+        }
+
+        .top-control-bar.active {
+            display: block;
+        }
+
+        .control-bar-title {
+            font-size: 14px;
+            color: var(--accent-cyan);
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 15px;
+        }
+
+        .control-buttons-group {
+            display: flex;
+            gap: 12px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+
+        .copy-link-top-btn {
+            flex: 1;
+            min-width: 200px;
+            padding: 12px 20px;
+            background: linear-gradient(135deg, var(--accent-teal), var(--accent-cyan));
+            border: none;
+            color: white;
+            border-radius: 10px;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 14px;
+            transition: all 0.3s ease;
+            white-space: nowrap;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+            box-shadow: 0 4px 15px rgba(20, 184, 166, 0.3);
+        }
+
+        .copy-link-top-btn:hover {
+            box-shadow: 0 0 30px rgba(20, 184, 166, 0.5);
+            transform: translateY(-3px);
+        }
+
+        .copy-link-top-btn:active {
+            transform: translateY(-1px);
+        }
+
+        .paste-link-wrapper {
             display: flex;
             flex-direction: column;
-            align-items: center;
-            gap: 15px;
+            gap: 8px;
+        }
+
+        .paste-link-label {
+            font-size: 12px;
+            color: var(--accent-cyan);
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 1px;
         }
 
         .paste-link-input {
@@ -251,7 +317,6 @@
             font-family: 'Courier New', monospace;
             letter-spacing: 0.5px;
             transition: all 0.3s ease;
-            text-align: center;
         }
 
         .paste-link-input::placeholder {
@@ -294,6 +359,7 @@
             transition: all 0.3s ease;
             font-weight: 600;
             flex-shrink: 0;
+            box-shadow: 0 4px 15px rgba(236, 72, 153, 0.3);
         }
 
         .back-btn:hover {
@@ -305,6 +371,10 @@
             transform: scale(1.05);
         }
 
+        .back-btn.hidden {
+            display: none;
+        }
+
         /* Step Sections */
         .step {
             background: var(--transparent-light);
@@ -314,11 +384,27 @@
             padding: 40px;
             margin-bottom: 30px;
             animation: slideUp 0.8s ease-out;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .step::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; right: 0; height: 1px;
+            background: linear-gradient(90deg, transparent, rgba(6, 182, 212, 0.5), transparent);
         }
 
         @keyframes slideUp {
-            from { opacity: 0; transform: translateY(30px); }
-            to { opacity: 1; transform: translateY(0); }
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
         }
 
         .step h2 {
@@ -414,6 +500,7 @@
 
         .tab-btn.active {
             color: var(--accent-cyan);
+            text-shadow: 0 0 10px rgba(6, 182, 212, 0.5);
         }
 
         .tab-btn.active::after {
@@ -425,6 +512,7 @@
             height: 3px;
             background: linear-gradient(90deg, var(--accent-cyan), var(--accent-purple));
             border-radius: 2px;
+            box-shadow: 0 0 10px rgba(6, 182, 212, 0.5);
         }
 
         .tab-btn:hover {
@@ -535,7 +623,6 @@
             letter-spacing: 0.5px;
             display: flex;
             align-items: center;
-            justify-content: center;
             gap: 6px;
         }
 
@@ -906,6 +993,7 @@
             padding: 20px 40px;
             font-family: 'Courier New', monospace;
             box-shadow: 0 0 30px rgba(6, 182, 212, 0.3);
+            text-shadow: 0 0 20px rgba(6, 182, 212, 0.5);
         }
 
         .code-hint {
@@ -1077,6 +1165,7 @@
             justify-content: center;
             transition: all 0.3s ease;
             font-weight: 600;
+            box-shadow: 0 4px 15px rgba(6, 182, 212, 0.3);
         }
 
         .swap-btn:hover {
@@ -1134,6 +1223,7 @@
         .file-upload-area:hover {
             border-color: var(--accent-cyan);
             background: rgba(6, 182, 212, 0.05);
+            box-shadow: 0 0 30px rgba(6, 182, 212, 0.2);
         }
 
         .file-upload-area.drag-over {
@@ -1240,6 +1330,7 @@
         .primary-btn {
             background: linear-gradient(135deg, var(--accent-purple), var(--accent-blue));
             color: white;
+            box-shadow: 0 4px 15px rgba(124, 58, 237, 0.3);
         }
 
         .primary-btn:hover:not(:disabled) {
@@ -1266,6 +1357,7 @@
         .next-btn {
             background: linear-gradient(135deg, var(--accent-teal), var(--accent-cyan));
             color: white;
+            box-shadow: 0 4px 15px rgba(20, 184, 166, 0.3);
         }
 
         .next-btn:hover {
@@ -1455,6 +1547,7 @@
         .social-link:hover {
             color: var(--accent-purple);
             transform: translateY(-2px);
+            text-shadow: 0 0 10px rgba(124, 58, 237, 0.5);
         }
 
         .footer-text {
@@ -1483,6 +1576,8 @@
             .code-box { font-size: 36px; padding: 15px 25px; letter-spacing: 6px; }
             .step-header { margin-bottom: 15px; }
             .back-btn { width: 40px; height: 40px; font-size: 18px; }
+            .control-buttons-group { flex-direction: column; }
+            .copy-link-top-btn { min-width: auto; }
         }
 
         @media (max-width: 480px) {
@@ -1502,12 +1597,14 @@
             .back-btn { width: 38px; height: 38px; font-size: 16px; }
             .link-button-group { gap: 8px; }
             .copy-link-btn { padding: 10px 20px; font-size: 12px; }
+            .top-control-bar { padding: 15px; }
+            .control-bar-title { font-size: 12px; }
+            .copy-link-top-btn { padding: 10px 15px; font-size: 12px; }
             .paste-link-input { padding: 12px 14px; font-size: 13px; }
         }
     </style>
 </head>
 <body>
-    <!-- Animated Background -->
     <div class="animated-background">
         <div class="floating-orb orb1"></div>
         <div class="floating-orb orb2"></div>
@@ -1517,9 +1614,7 @@
         <div class="floating-particle particle3"></div>
     </div>
 
-    <!-- Main Container -->
     <div class="container">
-        <!-- Header -->
         <header class="header">
             <div class="phoenix-circle">
                 <span class="phoenix-icon">🔥</span>
@@ -1528,9 +1623,27 @@
             <p class="header-subtitle">Secure, Fast, and Direct P2P File Transfer</p>
         </header>
 
-        <!-- Main Content -->
+        <div class="top-control-bar" id="topControlBar">
+            <div class="control-bar-title">🔗 Quick Access</div>
+            <div class="control-buttons-group">
+                <button class="copy-link-top-btn" onclick="copyLinkFromTopBar()" title="Copy your generated link">
+                    <span>📋</span>
+                    <span>Copy Link</span>
+                </button>
+            </div>
+            <div class="paste-link-wrapper">
+                <label class="paste-link-label">📥 Paste Link from Another Device:</label>
+                <input 
+                    type="text" 
+                    class="paste-link-input" 
+                    id="pasteLinkInput"
+                    placeholder="Paste the phoenixFADT link here..." 
+                    onpaste="handleLinkPaste(event)"
+                >
+            </div>
+        </div>
+
         <main class="main-content" id="mainContent">
-            <!-- Step 1: Network Selection -->
             <section class="step network-selection" id="step1">
                 <h2>How would you like to transfer files?</h2>
                 <div class="network-buttons">
@@ -1545,7 +1658,6 @@
                 </div>
             </section>
 
-            <!-- Step 2: Connection Method -->
             <section class="step connection-section" id="step2" style="display: none;">
                 <div class="step-header">
                     <button class="back-btn" onclick="goBack()" title="Go Back">← Back</button>
@@ -1553,13 +1665,11 @@
                 </div>
                 <h2>Connect Your Device</h2>
                 
-                <!-- Tabs -->
                 <div class="connection-tabs">
                     <button class="tab-btn active" onclick="switchTab('qr')">📱 QR Code</button>
                     <button class="tab-btn" onclick="switchTab('code')">🔐 4-Digit Code</button>
                 </div>
 
-                <!-- QR Code Tab -->
                 <div class="tab-content active" id="qr-tab">
                     <div class="qr-display-wrapper">
                         <div>
@@ -1594,7 +1704,6 @@
                     </div>
                 </div>
 
-                <!-- 4-Digit Code Tab -->
                 <div class="tab-content" id="code-tab">
                     <p class="tab-label">Enter this 4-digit code on your device:</p>
                     <div class="code-display">
@@ -1608,7 +1717,6 @@
                         <span class="tab-divider-text">OR USE LINK</span>
                     </div>
                     
-                    <!-- Link Sharing Section naturally integrated -->
                     <div class="link-sharing-section">
                         <button class="copy-link-btn" onclick="copyMyLink()" style="width: 100%; max-width: 300px;">
                             <span>📋</span>
@@ -1619,7 +1727,7 @@
                             <input 
                                 type="text" 
                                 class="paste-link-input" 
-                                id="pasteLinkInput"
+                                id="pasteLinkInputTab"
                                 placeholder="Paste link here..." 
                                 onpaste="handleLinkPaste(event)"
                             >
@@ -1627,7 +1735,6 @@
                     </div>
                 </div>
 
-                <!-- Connection Request -->
                 <div class="connection-request-section" id="connectionRequest" style="display: none;">
                     <div class="connection-request-title">
                         <span>📞</span>
@@ -1648,13 +1755,11 @@
                     </div>
                 </div>
 
-                <!-- Connect Button -->
                 <button class="connect-btn" onclick="connectDevice()" id="connectButton">
                     ✓ Connect Device
                 </button>
             </section>
 
-            <!-- Step 3: Transfer Direction -->
             <section class="step transfer-direction-section" id="step3" style="display: none;">
                 <div class="step-header">
                     <button class="back-btn" onclick="goBack()" title="Go Back">← Back</button>
@@ -1665,7 +1770,7 @@
                 <div class="transfer-direction">
                     <div class="device-selector">
                         <label class="device-label">Transfer From:</label>
-                        <select class="device-dropdown" id="sourceDevice" onchange="updateDeviceDisplay()">
+                        <select class="device-dropdown" id="sourceDevice" onchange="updateDeviceDisplay(true)">
                             <option value="mobile">📱 Mobile</option>
                             <option value="pc">🖥️ PC</option>
                             <option value="tablet">📱 Tablet</option>
@@ -1678,7 +1783,7 @@
 
                     <div class="device-selector">
                         <label class="device-label">Transfer To:</label>
-                        <select class="device-dropdown" id="destDevice" onchange="updateDeviceDisplay()">
+                        <select class="device-dropdown" id="destDevice" onchange="updateDeviceDisplay(true)">
                             <option value="mobile">📱 Mobile</option>
                             <option value="pc" selected>🖥️ PC</option>
                             <option value="tablet">📱 Tablet</option>
@@ -1686,7 +1791,6 @@
                     </div>
                 </div>
 
-                <!-- Folder Selection -->
                 <div class="folder-selection" id="folderSelection">
                     <button class="folder-btn" onclick="selectFolder()">📁 Select Save Folder</button>
                     <p class="folder-info" id="folderInfo"></p>
@@ -1697,7 +1801,6 @@
                 </button>
             </section>
 
-            <!-- Step 4: File Transfer -->
             <section class="step file-transfer-section" id="step4" style="display: none;">
                 <div class="step-header">
                     <button class="back-btn" onclick="goBack()" title="Go Back">← Back</button>
@@ -1731,7 +1834,6 @@
                 </div>
             </section>
 
-            <!-- Step 5: Transfer Status -->
             <section class="step transfer-status-section" id="step5" style="display: none;">
                 <h2>Transferring Files...</h2>
 
@@ -1761,7 +1863,6 @@
                 <button class="cancel-btn" onclick="cancelTransfer()">✕ Cancel Transfer</button>
             </section>
 
-            <!-- Step 6: Transfer Complete -->
             <section class="step transfer-complete-section" id="step6" style="display: none;">
                 <div class="success-animation">
                     <div class="checkmark">✓</div>
@@ -1787,17 +1888,15 @@
             </section>
         </main>
 
-        <!-- Footer -->
         <footer class="footer">
             <div class="social-links">
-                <a href="https://instagram.com" class="social-link" target="_blank">📸 Instagram</a>
-                <a href="https://youtube.com" class="social-link" target="_blank">🎬 YouTube</a>
+                <a href="https://www.instagram.com/primevaibhav7?igsh=NGQ3bG5uZmJpbTc0" class="social-link" target="_blank">📸 Instagram</a>
+                <a href="https://youtube.com/@primevaibhav7?si=aEKtmgTBTJWWM9zy" class="social-link" target="_blank">🎬 YouTube</a>
             </div>
             <p class="footer-text">© All rights reserved by PrimeV</p>
         </footer>
     </div>
 
-    <!-- Camera Modal -->
     <div class="camera-modal" id="cameraModal">
         <div class="camera-container">
             <div class="camera-header">
@@ -1824,14 +1923,13 @@
         </div>
     </div>
 
-    <!-- Scripts -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/jsqr/dist/jsQR.js"></script>
     
     <script>
         // ==================== WEBRTC & SIGNALING SERVER CONFIGURATION ====================
         
-        const SIGNALING_SERVER = 'wss://phoenix-ss.onrender.com'; // Render URL added perfectly
+        const SIGNALING_SERVER = 'wss://phoenix-ss.onrender.com';
         let signalingSocket = null;
         let peerConnection = null;
         let dataChannel = null;
@@ -1869,7 +1967,7 @@
         function handleSignalingMessage(message) {
             switch (message.type) {
                 case 'offer': 
-                    appState.scannedQRCode = message.from; // Fix: Save the sender ID to reply correctly
+                    appState.scannedQRCode = message.from; 
                     handleOffer(message.data); 
                     break;
                 case 'answer': 
@@ -1902,7 +2000,6 @@
                 if (peerConnection.connectionState === 'connected') {
                     showNotification('✓ P2P Connection Established!', 'success');
                     
-                    // Fix: Connection judte hi Laptop/PC automatically Step 3 par chala jayega
                     if (currentPage === 'step2') {
                         pageHistory = ['step1', 'step2', 'step3'];
                         currentPage = 'step3';
@@ -1929,20 +2026,59 @@
             dataChannel.onerror = () => showNotification('❌ Data channel error', 'error');
         }
 
+        // ==================== ADVANCED UI SYNC & DATA HANDLING ====================
         function handleDataChannelMessage(message) {
             try {
-                const data = typeof message === 'string' ? JSON.parse(message) : message;
-                if (data.type === 'file-metadata') {
-                    totalChunks = data.totalChunks;
-                    currentChunkIndex = 0;
-                    receivedChunks = [];
-                } else if (data.type === 'file-chunk') {
-                    receivedChunks.push(data.chunk);
+                if (typeof message === 'string') {
+                    const data = JSON.parse(message);
+                    
+                    // UI STATE SYNC LOGIC (Dropdowns & Swaps)
+                    if (data.type === 'ui-state-sync') {
+                        document.getElementById('sourceDevice').value = data.source;
+                        document.getElementById('destDevice').value = data.dest;
+                        appState.sourceDevice = data.source;
+                        appState.destDevice = data.dest;
+                        document.getElementById('folderSelection').style.display = appState.destDevice === 'pc' ? 'block' : 'none';
+                    } 
+                    // UI NAVIGATE LOGIC (Next Step Sync)
+                    else if (data.type === 'ui-navigate') {
+                        if (data.step === 'step5-receive') {
+                            showStep('step5');
+                            document.getElementById('transferStatus').textContent = "Waiting for files...";
+                            document.getElementById('totalFilesTransfer').textContent = "...";
+                        } else {
+                            showStep(data.step);
+                        }
+                    } 
+                    // FILE TRANSFER LOGIC
+                    else if (data.type === 'file-metadata') {
+                        totalChunks = data.totalChunks;
+                        currentChunkIndex = 0;
+                        receivedChunks = [];
+                        showStep('step5'); // Auto-open receiving screen
+                        document.getElementById('totalFilesTransfer').textContent = '1';
+                        document.getElementById('transferStatus').textContent = `Receiving: ${data.fileName}`;
+                    } else if (data.type === 'file-chunk') {
+                        receivedChunks.push(data.chunk);
+                        currentChunkIndex++;
+                        updateTransferProgress((currentChunkIndex / totalChunks) * 100);
+                        if (currentChunkIndex === totalChunks) assembleFile(data.fileName, data.fileType);
+                    }
+                } else {
+                    // Raw Blob/ArrayBuffer fallback logic
+                    receivedChunks.push(message);
                     currentChunkIndex++;
                     updateTransferProgress((currentChunkIndex / totalChunks) * 100);
-                    if (currentChunkIndex === totalChunks) assembleFile(data.fileName, data.fileType);
+                    if (currentChunkIndex === totalChunks) assembleFile('Received_File', 'application/octet-stream');
                 }
-            } catch (error) { console.error('Error:', error); }
+            } catch (error) { 
+                console.error('DataChannel Msg Error:', error);
+                // Last fallback for unparseable raw buffers
+                receivedChunks.push(message);
+                currentChunkIndex++;
+                updateTransferProgress((currentChunkIndex / totalChunks) * 100);
+                if (currentChunkIndex === totalChunks) assembleFile('Received_File', 'application/octet-stream');
+            }
         }
 
         function sendFilesViaDataChannel() {
@@ -1971,7 +2107,7 @@
                         updateTransferProgress(((i + 1) / totalChunks) * 100);
                     };
                     reader.readAsArrayBuffer(chunk);
-                    await new Promise(resolve => setTimeout(resolve, 10));
+                    await new Promise(resolve => setTimeout(resolve, 10)); // tiny delay to prevent buffer overflow
                 }
                 fileIndex++;
                 sendNextFile();
@@ -2008,6 +2144,7 @@
             a.href = url; a.download = fileName;
             document.body.appendChild(a); a.click(); document.body.removeChild(a);
             URL.revokeObjectURL(url);
+            showNotification('✓ File Received', 'success');
         }
 
         function showNotification(message, type = 'info') {
@@ -2039,6 +2176,12 @@
             document.querySelectorAll('.step').forEach(step => step.style.display = 'none');
             document.getElementById(stepId).style.display = 'block';
             if (currentPage !== stepId) { pageHistory.push(stepId); currentPage = stepId; }
+            
+            if (stepId === 'step2' || stepId === 'step3' || stepId === 'step4') {
+                document.getElementById('topControlBar').classList.add('active');
+            } else {
+                document.getElementById('topControlBar').classList.remove('active');
+            }
             window.scrollTo({ top: 0, behavior: 'smooth' });
         }
 
@@ -2050,8 +2193,24 @@
                 document.querySelectorAll('.step').forEach(step => step.style.display = 'none');
                 document.getElementById(previousPage).style.display = 'block';
                 closeScanner();
+                
+                if (previousPage === 'step2' || previousPage === 'step3' || previousPage === 'step4') {
+                    document.getElementById('topControlBar').classList.add('active');
+                } else {
+                    document.getElementById('topControlBar').classList.remove('active');
+                }
                 window.scrollTo({ top: 0, behavior: 'smooth' });
             }
+        }
+
+        function copyLinkFromTopBar() {
+            if (!appState.deviceLink) return alert('No link generated yet.');
+            navigator.clipboard.writeText(appState.deviceLink).then(() => {
+                const btn = event.target.closest('.copy-link-top-btn');
+                const originalHTML = btn.innerHTML;
+                btn.innerHTML = '<span>✓</span><span>Copied!</span>';
+                setTimeout(() => btn.innerHTML = originalHTML, 2000);
+            });
         }
 
         function copyMyLink() {
@@ -2067,10 +2226,9 @@
         function handleLinkPaste(event) {
             const pastedText = event.clipboardData.getData('text');
             if (pastedText.includes('phoenixFADT')) {
-                const input = document.getElementById('pasteLinkInput');
-                input.value = pastedText;
-                input.style.borderColor = 'var(--accent-green)';
-                setTimeout(() => input.style.borderColor = '', 2000);
+                event.target.value = pastedText;
+                event.target.style.borderColor = 'var(--accent-green)';
+                setTimeout(() => event.target.style.borderColor = '', 2000);
                 initiateConnectionWithPastedLink(pastedText);
             } else {
                 alert('Invalid link.');
@@ -2152,7 +2310,6 @@
         function acceptConnection() {
             document.getElementById('connectionRequest').style.display = 'none';
             createOffer().then(() => {
-                // Background mein connection banega, aur connectionstatechange usko agle page pe bhej dega
                 const statusDiv = document.createElement('div');
                 statusDiv.style.cssText = `
                     position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%);
@@ -2160,10 +2317,7 @@
                     border-radius: 12px; padding: 30px; text-align: center; z-index: 1000;
                     animation: slideUp 0.5s ease-out; min-width: 300px;
                 `;
-                statusDiv.innerHTML = `
-                    <div style="font-size: 40px; margin-bottom: 15px;">⏳</div>
-                    <p style="font-size: 18px; font-weight: 600; color: var(--accent-green);">Connecting...</p>
-                `;
+                statusDiv.innerHTML = `<div style="font-size: 40px; margin-bottom: 15px;">⏳</div><p style="font-size: 18px; font-weight: 600; color: var(--accent-green);">Connecting...</p>`;
                 document.body.appendChild(statusDiv);
                 setTimeout(() => statusDiv.remove(), 2000);
             });
@@ -2187,7 +2341,6 @@
             if (codeInput) {
                 codeInput.addEventListener('input', function() {
                     const validationStatus = document.getElementById('validationStatus');
-                    // Fix: UI accepts the code automatically without red error
                     if (this.value.length === 4) {
                         validationStatus.innerHTML = '<span style="color: var(--accent-green); display: flex; align-items: center; gap: 5px;"><span>✓</span> Code format accepted!</span>';
                         validationStatus.className = 'validation-status success';
@@ -2204,17 +2357,29 @@
             showStep('step3');
         }
 
-        // ==================== UI HELPERS ====================
-        function updateDeviceDisplay() {
+        // ==================== ADVANCED UI HELPERS ====================
+        
+        // Updates UI and broadcasts the change if broadcast = true
+        function updateDeviceDisplay(broadcast = false) {
+            appState.sourceDevice = document.getElementById('sourceDevice').value;
             appState.destDevice = document.getElementById('destDevice').value;
             document.getElementById('folderSelection').style.display = appState.destDevice === 'pc' ? 'block' : 'none';
+            
+            // Send sync message over WebRTC
+            if (broadcast && dataChannel && dataChannel.readyState === 'open') {
+                dataChannel.send(JSON.stringify({
+                    type: 'ui-state-sync',
+                    source: appState.sourceDevice,
+                    dest: appState.destDevice
+                }));
+            }
         }
 
         function swapDevices() {
             [appState.sourceDevice, appState.destDevice] = [appState.destDevice, appState.sourceDevice];
             document.getElementById('sourceDevice').value = appState.sourceDevice;
             document.getElementById('destDevice').value = appState.destDevice;
-            updateDeviceDisplay();
+            updateDeviceDisplay(true); // Call with true to broadcast the swap
         }
 
         function selectFolder() {
@@ -2222,7 +2387,20 @@
             if (folder !== null) document.getElementById('folderInfo').textContent = `📁 Folder: ${folder || 'Default'}`;
         }
 
-        function goToTransfer() { showStep('step4'); }
+        // Sender moves to Select Files, Receiver forced to Waiting Area
+        function goToTransfer() { 
+            pageHistory.push('step4');
+            currentPage = 'step4';
+            showStep('step4');
+            
+            // Sync: Tell peer to become receiver
+            if (dataChannel && dataChannel.readyState === 'open') {
+                dataChannel.send(JSON.stringify({
+                    type: 'ui-navigate',
+                    step: 'step5-receive'
+                }));
+            }
+        }
 
         function handleDragOver(e) { e.preventDefault(); document.getElementById('uploadArea').classList.add('drag-over'); }
         function handleDragLeave(e) { e.preventDefault(); document.getElementById('uploadArea').classList.remove('drag-over'); }
@@ -2294,7 +2472,7 @@
         function startNewTransfer() { location.reload(); }
         function shareLink() { navigator.clipboard.writeText(appState.deviceLink); alert('Link Copied!'); }
 
-        document.addEventListener('DOMContentLoaded', () => updateDeviceDisplay());
+        document.addEventListener('DOMContentLoaded', () => updateDeviceDisplay(false));
     </script>
 </body>
 </html>
