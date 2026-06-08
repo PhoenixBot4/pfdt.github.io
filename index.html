@@ -1,0 +1,2691 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Phoenix Files Transfer - Secure P2P File Sharing</title>
+    
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --dark-bg: #0a0e27;
+            --darker-bg: #05071a;
+            --accent-purple: #7c3aed;
+            --accent-blue: #3b82f6;
+            --accent-cyan: #06b6d4;
+            --accent-pink: #ec4899;
+            --accent-green: #10b981;
+            --accent-teal: #14b8a6;
+            --accent-indigo: #4f46e5;
+            --accent-violet: #a855f7;
+            --text-primary: #f0f9ff;
+            --text-secondary: #cbd5e1;
+            --transparent-light: rgba(255, 255, 255, 0.05);
+            --transparent-lighter: rgba(255, 255, 255, 0.02);
+        }
+
+        html, body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: linear-gradient(135deg, #0a0e27 0%, #1a1a3e 50%, #0d0f24 100%);
+            color: var(--text-primary);
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        /* Animated Background */
+        .animated-background {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 0;
+            overflow: hidden;
+            pointer-events: none;
+        }
+
+        .floating-orb {
+            position: absolute;
+            border-radius: 50%;
+            filter: blur(50px);
+            opacity: 0.25;
+        }
+
+        .orb1 {
+            width: 400px;
+            height: 400px;
+            background: var(--accent-purple);
+            top: 10%;
+            left: 10%;
+            animation: float1 25s infinite ease-in-out;
+        }
+
+        .orb2 {
+            width: 350px;
+            height: 350px;
+            background: var(--accent-cyan);
+            top: 50%;
+            right: 5%;
+            animation: float2 30s infinite ease-in-out;
+        }
+
+        .orb3 {
+            width: 300px;
+            height: 300px;
+            background: var(--accent-blue);
+            bottom: 10%;
+            left: 20%;
+            animation: float3 28s infinite ease-in-out;
+        }
+
+        .floating-particle {
+            position: absolute;
+            width: 4px;
+            height: 4px;
+            background: var(--accent-cyan);
+            border-radius: 50%;
+            opacity: 0.4;
+        }
+
+        .particle1 {
+            top: 20%;
+            left: 30%;
+            animation: particle-float 15s infinite ease-in-out;
+            box-shadow: 0 0 10px rgba(6, 182, 212, 0.5);
+        }
+
+        .particle2 {
+            top: 60%;
+            right: 20%;
+            animation: particle-float 18s infinite ease-in-out;
+            box-shadow: 0 0 10px rgba(124, 58, 237, 0.5);
+        }
+
+        .particle3 {
+            bottom: 30%;
+            left: 50%;
+            animation: particle-float 20s infinite ease-in-out;
+            box-shadow: 0 0 10px rgba(168, 85, 247, 0.5);
+        }
+
+        @keyframes float1 {
+            0%, 100% { transform: translate(0, 0) rotate(0deg); }
+            25% { transform: translate(50px, -50px) rotate(90deg); }
+            50% { transform: translate(-30px, 40px) rotate(180deg); }
+            75% { transform: translate(40px, 50px) rotate(270deg); }
+        }
+
+        @keyframes float2 {
+            0%, 100% { transform: translate(0, 0) rotate(0deg); }
+            25% { transform: translate(-50px, 30px) rotate(90deg); }
+            50% { transform: translate(30px, -40px) rotate(180deg); }
+            75% { transform: translate(-40px, -50px) rotate(270deg); }
+        }
+
+        @keyframes float3 {
+            0%, 100% { transform: translate(0, 0) rotate(0deg); }
+            25% { transform: translate(40px, 40px) rotate(90deg); }
+            50% { transform: translate(-50px, -30px) rotate(180deg); }
+            75% { transform: translate(-30px, 50px) rotate(270deg); }
+        }
+
+        @keyframes particle-float {
+            0%, 100% { transform: translateY(0) translateX(0); opacity: 0.4; }
+            50% { transform: translateY(-50px) translateX(30px); opacity: 0.8; }
+        }
+
+        /* Main Container */
+        .container {
+            position: relative;
+            z-index: 10;
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 40px 20px;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* Header */
+        .header {
+            text-align: center;
+            margin-bottom: 50px;
+            animation: slideDown 0.8s ease-out;
+        }
+
+        @keyframes slideDown {
+            from {
+                opacity: 0;
+                transform: translateY(-40px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .phoenix-circle {
+            width: 130px;
+            height: 130px;
+            margin: 0 auto 25px;
+            background: linear-gradient(135deg, var(--accent-purple), var(--accent-blue));
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border: 3px solid var(--accent-cyan);
+            box-shadow: 0 0 50px rgba(124, 58, 237, 0.5), 0 0 100px rgba(6, 182, 212, 0.3);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .phoenix-circle::before {
+            content: '';
+            position: absolute;
+            width: 150%;
+            height: 150%;
+            background: linear-gradient(45deg, transparent, rgba(255, 255, 255, 0.15), transparent);
+            animation: shimmer 4s infinite;
+        }
+
+        @keyframes shimmer {
+            0% { transform: translateX(-100%) translateY(-100%) rotate(45deg); }
+            100% { transform: translateX(100%) translateY(100%) rotate(45deg); }
+        }
+
+        .phoenix-icon {
+            font-size: 70px;
+            position: relative;
+            z-index: 1;
+            animation: float-icon 3s ease-in-out infinite;
+        }
+
+        @keyframes float-icon {
+            0%, 100% { transform: translateY(0) rotate(0deg); }
+            50% { transform: translateY(-10px) rotate(5deg); }
+        }
+
+        .header-title {
+            font-size: 32px;
+            font-weight: 700;
+            background: linear-gradient(135deg, var(--accent-cyan), var(--accent-purple));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 10px;
+            letter-spacing: 1px;
+        }
+
+        .header-subtitle {
+            font-size: 14px;
+            color: var(--text-secondary);
+            letter-spacing: 0.5px;
+        }
+
+        /* Main Content */
+        .main-content {
+            flex: 1;
+        }
+
+        /* Step Header with Back Button */
+        .step-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 20px;
+            gap: 15px;
+        }
+
+        .back-btn {
+            width: 45px;
+            height: 45px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--accent-pink), var(--accent-violet));
+            border: 2px solid var(--accent-pink);
+            color: white;
+            cursor: pointer;
+            font-size: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s ease;
+            font-weight: 600;
+            flex-shrink: 0;
+        }
+
+        .back-btn:hover {
+            transform: scale(1.1) translateX(-3px);
+            box-shadow: 0 0 25px rgba(236, 72, 153, 0.5);
+        }
+
+        .back-btn:active {
+            transform: scale(1.05);
+        }
+
+        .back-btn.hidden {
+            display: none;
+        }
+
+        /* Step Sections */
+        .step {
+            background: var(--transparent-light);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(124, 58, 237, 0.3);
+            border-radius: 20px;
+            padding: 40px;
+            margin-bottom: 30px;
+            animation: slideUp 0.8s ease-out;
+        }
+
+        @keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .step h2 {
+            font-size: 24px;
+            margin-bottom: 30px;
+            background: linear-gradient(135deg, var(--accent-cyan), var(--accent-purple));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        /* Network Selection */
+        .network-buttons {
+            display: flex;
+            gap: 20px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        .network-btn {
+            flex: 1;
+            min-width: 180px;
+            padding: 20px 30px;
+            background: transparent;
+            border: 2px solid var(--accent-purple);
+            color: var(--text-primary);
+            border-radius: 12px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: 600;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 10px;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .network-btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, var(--accent-purple), var(--accent-blue));
+            transition: left 0.4s ease;
+            z-index: -1;
+        }
+
+        .network-btn:hover::before {
+            left: 0;
+        }
+
+        .network-btn:hover {
+            border-color: var(--accent-cyan);
+            box-shadow: 0 0 30px rgba(124, 58, 237, 0.5), 0 0 60px rgba(6, 182, 212, 0.2);
+            transform: translateY(-5px);
+        }
+
+        .network-btn .icon {
+            font-size: 40px;
+        }
+
+        .network-btn .label {
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            font-size: 14px;
+        }
+
+        /* Connection Tabs */
+        .connection-tabs {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 30px;
+            border-bottom: 2px solid rgba(124, 58, 237, 0.2);
+            padding-bottom: 15px;
+            flex-wrap: wrap;
+        }
+
+        .tab-btn {
+            padding: 10px 20px;
+            background: transparent;
+            border: none;
+            color: var(--text-secondary);
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            position: relative;
+        }
+
+        .tab-btn.active {
+            color: var(--accent-cyan);
+        }
+
+        .tab-btn.active::after {
+            content: '';
+            position: absolute;
+            bottom: -15px;
+            left: 0;
+            width: 100%;
+            height: 3px;
+            background: linear-gradient(90deg, var(--accent-cyan), var(--accent-purple));
+            border-radius: 2px;
+        }
+
+        .tab-btn:hover {
+            color: var(--accent-cyan);
+        }
+
+        /* Tab Content */
+        .tab-content {
+            display: none;
+            animation: fadeIn 0.4s ease-out;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+            }
+            to {
+                opacity: 1;
+            }
+        }
+
+        .tab-label {
+            text-align: center;
+            margin-bottom: 25px;
+            color: var(--text-secondary);
+            font-size: 15px;
+        }
+
+        /* QR Code Display Section */
+        .qr-display-wrapper {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 20px;
+        }
+
+        .qr-container {
+            width: 280px;
+            height: 280px;
+            margin: 20px auto;
+            background: linear-gradient(135deg, var(--transparent-light), var(--transparent-lighter));
+            border: 2px solid var(--accent-cyan);
+            border-radius: 15px;
+            padding: 15px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            overflow: hidden;
+            box-shadow: 0 0 40px rgba(6, 182, 212, 0.3);
+        }
+
+        .qr-container::before {
+            content: '';
+            position: absolute;
+            width: 100%;
+            height: 3px;
+            background: linear-gradient(90deg, transparent, var(--accent-cyan), transparent);
+            animation: scan-line 3s infinite;
+        }
+
+        @keyframes scan-line {
+            0% {
+                top: 0;
+            }
+            100% {
+                top: 100%;
+            }
+        }
+
+        #qrCanvas {
+            width: 100%;
+            height: 100%;
+            border-radius: 8px;
+        }
+
+        .qr-link {
+            text-align: center;
+            font-size: 13px;
+            margin-top: 15px;
+            color: var(--text-secondary);
+        }
+
+        .link-text {
+            color: var(--accent-cyan);
+            font-weight: 600;
+            font-family: 'Courier New', monospace;
+            word-break: break-all;
+        }
+
+        /* Copy Link Button Group */
+        .link-button-group {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+            margin-top: 20px;
+            flex-wrap: wrap;
+        }
+
+        .copy-link-btn {
+            padding: 12px 28px;
+            background: linear-gradient(135deg, var(--accent-teal), var(--accent-cyan));
+            border: none;
+            color: white;
+            border-radius: 10px;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 14px;
+            transition: all 0.3s ease;
+            white-space: nowrap;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .copy-link-btn:hover {
+            box-shadow: 0 0 30px rgba(20, 184, 166, 0.5);
+            transform: translateY(-3px);
+        }
+
+        .copy-link-btn:active {
+            transform: translateY(-1px);
+        }
+
+        /* Divider */
+        .tab-divider {
+            text-align: center;
+            margin: 30px 0;
+            position: relative;
+        }
+
+        .tab-divider::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 0;
+            right: 0;
+            height: 1px;
+            background: linear-gradient(90deg, transparent, rgba(124, 58, 237, 0.3), transparent);
+        }
+
+        .tab-divider-text {
+            display: inline-block;
+            background: var(--transparent-light);
+            padding: 0 15px;
+            color: var(--text-secondary);
+            font-size: 13px;
+            position: relative;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        /* Scanner Section */
+        .scanner-section {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 20px;
+        }
+
+        .scan-btn {
+            padding: 14px 35px;
+            background: linear-gradient(135deg, var(--accent-cyan), var(--accent-teal));
+            border: none;
+            color: white;
+            border-radius: 10px;
+            font-size: 15px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .scan-btn:hover {
+            box-shadow: 0 0 30px rgba(6, 182, 212, 0.5);
+            transform: translateY(-3px);
+        }
+
+        .scan-btn:active {
+            transform: translateY(-1px);
+        }
+
+        /* Camera Modal */
+        .camera-modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.9);
+            z-index: 2000;
+            align-items: center;
+            justify-content: center;
+            animation: fadeIn 0.3s ease-out;
+        }
+
+        .camera-modal.active {
+            display: flex;
+        }
+
+        .camera-container {
+            position: relative;
+            width: 90%;
+            max-width: 500px;
+            background: var(--darker-bg);
+            border-radius: 20px;
+            overflow: hidden;
+            box-shadow: 0 0 60px rgba(124, 58, 237, 0.5);
+        }
+
+        .camera-header {
+            padding: 20px;
+            background: linear-gradient(135deg, var(--accent-purple), var(--accent-blue));
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .camera-header h3 {
+            font-size: 18px;
+            font-weight: 600;
+            color: white;
+            margin: 0;
+        }
+
+        .camera-close-btn {
+            width: 40px;
+            height: 40px;
+            background: rgba(255, 255, 255, 0.2);
+            border: none;
+            border-radius: 50%;
+            color: white;
+            cursor: pointer;
+            font-size: 24px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s ease;
+        }
+
+        .camera-close-btn:hover {
+            background: rgba(255, 255, 255, 0.3);
+        }
+
+        .camera-feed {
+            position: relative;
+            width: 100%;
+            aspect-ratio: 1;
+            background: #000;
+            overflow: hidden;
+        }
+
+        #video {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .scanner-overlay {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 250px;
+            height: 250px;
+            border: 3px solid var(--accent-cyan);
+            border-radius: 12px;
+            background: radial-gradient(circle at center, transparent 40%, rgba(6, 182, 212, 0.1) 100%);
+            box-shadow: 0 0 20px rgba(6, 182, 212, 0.5) inset;
+            z-index: 1;
+        }
+
+        .scanner-corner {
+            position: absolute;
+            width: 20px;
+            height: 20px;
+            border: 3px solid var(--accent-cyan);
+        }
+
+        .scanner-corner.top-left {
+            top: 0;
+            left: 0;
+            border-right: none;
+            border-bottom: none;
+        }
+
+        .scanner-corner.top-right {
+            top: 0;
+            right: 0;
+            border-left: none;
+            border-bottom: none;
+        }
+
+        .scanner-corner.bottom-left {
+            bottom: 0;
+            left: 0;
+            border-right: none;
+            border-top: none;
+        }
+
+        .scanner-corner.bottom-right {
+            bottom: 0;
+            right: 0;
+            border-left: none;
+            border-top: none;
+        }
+
+        .scanner-line {
+            position: absolute;
+            height: 3px;
+            width: 100%;
+            top: 30%;
+            left: 0;
+            background: linear-gradient(90deg, transparent, var(--accent-cyan), transparent);
+            animation: scan-animation 2s infinite;
+        }
+
+        @keyframes scan-animation {
+            0% {
+                top: 0%;
+            }
+            100% {
+                top: 100%;
+            }
+        }
+
+        .camera-controls {
+            padding: 20px;
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        .camera-btn {
+            padding: 12px 25px;
+            border: none;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .camera-btn-primary {
+            background: linear-gradient(135deg, var(--accent-cyan), var(--accent-teal));
+            color: white;
+        }
+
+        .camera-btn-primary:hover {
+            box-shadow: 0 0 20px rgba(20, 184, 166, 0.5);
+        }
+
+        .camera-btn-secondary {
+            background: transparent;
+            border: 2px solid var(--accent-pink);
+            color: var(--accent-pink);
+        }
+
+        .camera-btn-secondary:hover {
+            background: rgba(236, 72, 153, 0.1);
+        }
+
+        .camera-status {
+            padding: 15px;
+            text-align: center;
+            font-size: 13px;
+            color: var(--text-secondary);
+            background: rgba(124, 58, 237, 0.1);
+        }
+
+        /* Connection Request Section */
+        .connection-request-section {
+            background: linear-gradient(135deg, rgba(16, 185, 129, 0.1), rgba(20, 184, 166, 0.08));
+            border: 2px solid rgba(16, 185, 129, 0.3);
+            border-radius: 15px;
+            padding: 25px;
+            margin: 25px 0;
+            text-align: center;
+            animation: slideUp 0.6s ease-out;
+        }
+
+        .connection-request-title {
+            font-size: 16px;
+            font-weight: 600;
+            color: var(--accent-green);
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+
+        .connection-request-details {
+            background: var(--transparent-light);
+            border: 1px solid rgba(16, 185, 129, 0.2);
+            border-radius: 10px;
+            padding: 15px;
+            margin-bottom: 15px;
+            text-align: left;
+        }
+
+        .request-device-info {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 15px;
+            margin-bottom: 10px;
+        }
+
+        .request-device-icon {
+            font-size: 40px;
+        }
+
+        .request-device-text {
+            flex: 1;
+        }
+
+        .request-device-name {
+            font-size: 14px;
+            color: var(--text-secondary);
+        }
+
+        .request-device-id {
+            font-size: 12px;
+            color: var(--accent-cyan);
+            font-family: 'Courier New', monospace;
+            word-break: break-all;
+            margin-top: 5px;
+        }
+
+        .connection-actions {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        .accept-btn {
+            padding: 12px 30px;
+            background: linear-gradient(135deg, var(--accent-green), var(--accent-teal));
+            border: none;
+            color: white;
+            border-radius: 10px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .accept-btn:hover {
+            box-shadow: 0 0 25px rgba(16, 185, 129, 0.5);
+            transform: translateY(-3px);
+        }
+
+        .reject-btn {
+            padding: 12px 30px;
+            background: transparent;
+            border: 2px solid var(--accent-pink);
+            color: var(--accent-pink);
+            border-radius: 10px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .reject-btn:hover {
+            background: rgba(236, 72, 153, 0.1);
+        }
+
+        /* Link Display */
+        .link-display {
+            display: flex;
+            gap: 12px;
+            margin: 25px 0;
+            flex-wrap: wrap;
+        }
+
+        .link-input {
+            flex: 1;
+            min-width: 200px;
+            padding: 15px 20px;
+            background: var(--transparent-light);
+            border: 2px solid var(--accent-purple);
+            border-radius: 10px;
+            color: var(--text-primary);
+            font-size: 14px;
+            font-family: 'Courier New', monospace;
+            letter-spacing: 1px;
+            transition: all 0.3s ease;
+        }
+
+        .link-input:focus {
+            outline: none;
+            border-color: var(--accent-cyan);
+            box-shadow: 0 0 20px rgba(6, 182, 212, 0.3);
+        }
+
+        .copy-btn {
+            padding: 12px 25px;
+            background: linear-gradient(135deg, var(--accent-blue), var(--accent-cyan));
+            border: none;
+            color: white;
+            border-radius: 10px;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 14px;
+            transition: all 0.3s ease;
+            white-space: nowrap;
+        }
+
+        .copy-btn:hover {
+            box-shadow: 0 0 25px rgba(6, 182, 212, 0.5);
+            transform: translateY(-3px);
+        }
+
+        .copy-btn:active {
+            transform: translateY(-1px);
+        }
+
+        /* Code Display */
+        .code-display {
+            display: flex;
+            justify-content: center;
+            margin: 30px 0;
+        }
+
+        .code-box {
+            font-size: 48px;
+            font-weight: 700;
+            letter-spacing: 10px;
+            color: var(--accent-cyan);
+            background: var(--transparent-light);
+            border: 3px solid var(--accent-cyan);
+            border-radius: 12px;
+            padding: 20px 40px;
+            font-family: 'Courier New', monospace;
+            box-shadow: 0 0 30px rgba(6, 182, 212, 0.3);
+        }
+
+        .code-hint {
+            text-align: center;
+            margin: 25px 0 15px;
+            color: var(--text-secondary);
+            font-size: 14px;
+        }
+
+        .code-input {
+            width: 100%;
+            max-width: 300px;
+            margin: 15px auto;
+            display: block;
+            padding: 15px;
+            background: var(--transparent-light);
+            border: 2px solid var(--accent-purple);
+            color: var(--text-primary);
+            border-radius: 10px;
+            font-size: 20px;
+            text-align: center;
+            letter-spacing: 8px;
+            font-family: 'Courier New', monospace;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+
+        .code-input:focus {
+            outline: none;
+            border-color: var(--accent-cyan);
+            box-shadow: 0 0 20px rgba(6, 182, 212, 0.3);
+        }
+
+        .validation-status {
+            text-align: center;
+            margin-top: 15px;
+            height: 30px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+
+        .validation-status.success {
+            color: var(--accent-green);
+        }
+
+        .validation-status.error {
+            color: var(--accent-pink);
+        }
+
+        /* Connect Button */
+        .connect-btn {
+            width: 100%;
+            padding: 16px;
+            background: linear-gradient(135deg, var(--accent-purple), var(--accent-blue));
+            border: none;
+            color: white;
+            border-radius: 12px;
+            font-size: 16px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-top: 25px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .connect-btn::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 0;
+            height: 0;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.2);
+            transform: translate(-50%, -50%);
+            transition: width 0.6s, height 0.6s;
+        }
+
+        .connect-btn:hover::before {
+            width: 300px;
+            height: 300px;
+        }
+
+        .connect-btn:hover {
+            box-shadow: 0 0 40px rgba(124, 58, 237, 0.6), 0 0 80px rgba(6, 182, 212, 0.3);
+            transform: translateY(-3px);
+        }
+
+        .connect-btn:active {
+            transform: translateY(-1px);
+        }
+
+        .connect-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        /* Transfer Direction */
+        .transfer-direction {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+            margin-bottom: 30px;
+            flex-wrap: wrap;
+        }
+
+        .device-selector {
+            flex: 1;
+            min-width: 200px;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .device-label {
+            font-size: 12px;
+            color: var(--accent-cyan);
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 1.5px;
+        }
+
+        .device-dropdown {
+            padding: 14px 16px;
+            background: var(--transparent-light);
+            border: 2px solid var(--accent-purple);
+            color: var(--text-primary);
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-weight: 600;
+            font-size: 15px;
+        }
+
+        .device-dropdown:hover {
+            border-color: var(--accent-cyan);
+            box-shadow: 0 0 20px rgba(6, 182, 212, 0.2);
+        }
+
+        .device-dropdown:focus {
+            outline: none;
+            border-color: var(--accent-cyan);
+            background: rgba(6, 182, 212, 0.05);
+        }
+
+        .arrow-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .swap-btn {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--accent-blue), var(--accent-cyan));
+            border: 2px solid var(--accent-cyan);
+            color: white;
+            cursor: pointer;
+            font-size: 24px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s ease;
+            font-weight: 600;
+        }
+
+        .swap-btn:hover {
+            transform: scale(1.1) rotate(180deg);
+            box-shadow: 0 0 30px rgba(6, 182, 212, 0.5);
+        }
+
+        /* Folder Selection */
+        .folder-selection {
+            background: rgba(20, 184, 166, 0.08);
+            border: 2px dashed var(--accent-teal);
+            border-radius: 12px;
+            padding: 20px;
+            margin: 25px 0;
+            text-align: center;
+        }
+
+        .folder-btn {
+            padding: 12px 30px;
+            background: linear-gradient(135deg, var(--accent-teal), var(--accent-cyan));
+            border: none;
+            color: white;
+            border-radius: 10px;
+            font-size: 15px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .folder-btn:hover {
+            box-shadow: 0 0 25px rgba(20, 184, 166, 0.5);
+            transform: translateY(-3px);
+        }
+
+        .folder-info {
+            font-size: 12px;
+            color: var(--text-secondary);
+            margin-top: 10px;
+        }
+
+        /* File Upload */
+        .file-upload-area {
+            background: var(--transparent-light);
+            border: 3px dashed var(--accent-purple);
+            border-radius: 20px;
+            padding: 60px 40px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-bottom: 30px;
+        }
+
+        .file-upload-area:hover {
+            border-color: var(--accent-cyan);
+            background: rgba(6, 182, 212, 0.05);
+        }
+
+        .file-upload-area.drag-over {
+            border-color: var(--accent-green);
+            background: rgba(16, 185, 129, 0.1);
+            box-shadow: 0 0 40px rgba(16, 185, 129, 0.3);
+        }
+
+        .upload-icon {
+            font-size: 60px;
+            display: block;
+            margin-bottom: 20px;
+            animation: float-upload 3s ease-in-out infinite;
+        }
+
+        @keyframes float-upload {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-15px); }
+        }
+
+        .upload-text {
+            font-size: 18px;
+            font-weight: 600;
+            margin-bottom: 8px;
+            color: var(--text-primary);
+        }
+
+        .upload-subtext {
+            font-size: 14px;
+            color: var(--text-secondary);
+        }
+
+        /* Selected Files */
+        .selected-files {
+            background: rgba(168, 85, 247, 0.08);
+            border: 2px solid rgba(168, 85, 247, 0.3);
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 25px;
+        }
+
+        .selected-files h3 {
+            margin-bottom: 15px;
+            color: var(--accent-purple);
+        }
+
+        .files-list {
+            max-height: 300px;
+            overflow-y: auto;
+            margin-bottom: 15px;
+        }
+
+        .file-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 10px;
+            background: var(--transparent-light);
+            border-radius: 8px;
+            margin-bottom: 8px;
+            font-size: 13px;
+        }
+
+        .file-item-name {
+            flex: 1;
+            margin-left: 10px;
+            word-break: break-all;
+        }
+
+        .file-item-size {
+            color: var(--accent-cyan);
+            font-weight: 600;
+        }
+
+        .files-info {
+            display: flex;
+            gap: 20px;
+            font-size: 14px;
+            padding-top: 15px;
+            border-top: 1px solid rgba(168, 85, 247, 0.2);
+        }
+
+        /* Action Buttons */
+        .action-buttons {
+            display: flex;
+            gap: 15px;
+            flex-wrap: wrap;
+        }
+
+        .primary-btn, .secondary-btn, .next-btn {
+            flex: 1;
+            min-width: 200px;
+            padding: 15px;
+            border: none;
+            border-radius: 12px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .primary-btn {
+            background: linear-gradient(135deg, var(--accent-purple), var(--accent-blue));
+            color: white;
+        }
+
+        .primary-btn:hover:not(:disabled) {
+            box-shadow: 0 0 35px rgba(124, 58, 237, 0.6);
+            transform: translateY(-3px);
+        }
+
+        .primary-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .secondary-btn {
+            background: transparent;
+            border: 2px solid var(--accent-cyan);
+            color: var(--text-primary);
+        }
+
+        .secondary-btn:hover {
+            background: rgba(6, 182, 212, 0.1);
+            box-shadow: 0 0 25px rgba(6, 182, 212, 0.3);
+        }
+
+        .next-btn {
+            background: linear-gradient(135deg, var(--accent-teal), var(--accent-cyan));
+            color: white;
+        }
+
+        .next-btn:hover {
+            box-shadow: 0 0 30px rgba(20, 184, 166, 0.5);
+            transform: translateY(-3px);
+        }
+
+        /* Transfer Status */
+        .progress-container {
+            display: flex;
+            justify-content: center;
+            margin: 40px 0;
+        }
+
+        .progress-ring {
+            width: 220px;
+            height: 220px;
+            position: relative;
+        }
+
+        .progress-svg {
+            filter: drop-shadow(0 0 30px rgba(6, 182, 212, 0.3));
+        }
+
+        .progress-bg {
+            fill: none;
+            stroke: rgba(124, 58, 237, 0.2);
+            stroke-width: 8;
+        }
+
+        .progress-fill {
+            fill: none;
+            stroke: var(--accent-cyan);
+            stroke-width: 8;
+            stroke-linecap: round;
+            stroke-dasharray: 565;
+            stroke-dashoffset: 565;
+            transform-origin: 50% 50%;
+            transform: rotate(-90deg);
+            transition: stroke-dashoffset 0.3s ease;
+        }
+
+        .progress-text {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            text-align: center;
+        }
+
+        .progress-percentage {
+            display: block;
+            font-size: 32px;
+            font-weight: 700;
+            color: var(--accent-cyan);
+        }
+
+        /* Transfer Info */
+        .transfer-info {
+            background: var(--transparent-light);
+            border: 1px solid rgba(124, 58, 237, 0.2);
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 25px;
+            text-align: center;
+        }
+
+        .transfer-info p {
+            margin: 8px 0;
+            font-size: 15px;
+        }
+
+        .status-text {
+            color: var(--accent-cyan);
+            font-weight: 600;
+            margin-top: 15px !important;
+        }
+
+        /* Transfer Details */
+        .transfer-details {
+            background: rgba(168, 85, 247, 0.08);
+            border: 1px solid rgba(168, 85, 247, 0.3);
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 25px;
+        }
+
+        .transfer-details p {
+            margin: 8px 0;
+            font-size: 14px;
+        }
+
+        .cancel-btn {
+            width: 100%;
+            padding: 14px;
+            background: transparent;
+            border: 2px solid var(--accent-pink);
+            color: var(--accent-pink);
+            border-radius: 10px;
+            font-size: 15px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .cancel-btn:hover {
+            background: rgba(236, 72, 153, 0.1);
+            box-shadow: 0 0 25px rgba(236, 72, 153, 0.3);
+        }
+
+        /* Transfer Complete */
+        .success-animation {
+            display: flex;
+            justify-content: center;
+            margin: 40px 0;
+        }
+
+        .checkmark {
+            width: 100px;
+            height: 100px;
+            background: linear-gradient(135deg, var(--accent-green), var(--accent-teal));
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 60px;
+            color: white;
+            box-shadow: 0 0 40px rgba(16, 185, 129, 0.5);
+            animation: scale-bounce 0.6s ease-out;
+        }
+
+        @keyframes scale-bounce {
+            0% {
+                transform: scale(0);
+            }
+            70% {
+                transform: scale(1.1);
+            }
+            100% {
+                transform: scale(1);
+            }
+        }
+
+        .complete-message {
+            text-align: center;
+            font-size: 18px;
+            color: var(--accent-green);
+            margin-bottom: 30px;
+            font-weight: 600;
+        }
+
+        .complete-stats {
+            background: var(--transparent-light);
+            border: 1px solid rgba(124, 58, 237, 0.2);
+            border-radius: 12px;
+            padding: 25px;
+            margin-bottom: 30px;
+            text-align: center;
+        }
+
+        .complete-stats p {
+            margin: 10px 0;
+            font-size: 15px;
+        }
+
+        /* Footer */
+        .footer {
+            text-align: center;
+            padding: 30px 0 20px;
+            border-top: 1px solid rgba(124, 58, 237, 0.2);
+            margin-top: 50px;
+            animation: slideUp 0.8s ease-out 0.3s both;
+        }
+
+        .social-links {
+            display: flex;
+            justify-content: center;
+            gap: 25px;
+            margin-bottom: 15px;
+            flex-wrap: wrap;
+        }
+
+        .social-link {
+            color: var(--accent-cyan);
+            text-decoration: none;
+            font-weight: 600;
+            font-size: 15px;
+            transition: all 0.3s ease;
+        }
+
+        .social-link:hover {
+            color: var(--accent-purple);
+            transform: translateY(-2px);
+        }
+
+        .footer-text {
+            font-size: 13px;
+            color: var(--text-secondary);
+            letter-spacing: 1px;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .header-title {
+                font-size: 24px;
+            }
+
+            .phoenix-circle {
+                width: 100px;
+                height: 100px;
+            }
+
+            .phoenix-icon {
+                font-size: 50px;
+            }
+
+            .step {
+                padding: 25px;
+            }
+
+            .network-btn {
+                min-width: 150px;
+                padding: 15px 20px;
+            }
+
+            .transfer-direction {
+                flex-direction: column;
+            }
+
+            .file-upload-area {
+                padding: 40px 20px;
+            }
+
+            .upload-icon {
+                font-size: 45px;
+            }
+
+            .progress-ring {
+                width: 160px;
+                height: 160px;
+            }
+
+            .progress-percentage {
+                font-size: 24px;
+            }
+
+            .action-buttons {
+                flex-direction: column;
+            }
+
+            .primary-btn, .secondary-btn, .next-btn {
+                min-width: auto;
+            }
+
+            .social-links {
+                gap: 15px;
+            }
+
+            .qr-container {
+                width: 250px;
+                height: 250px;
+            }
+
+            .camera-container {
+                width: 95%;
+                max-width: 400px;
+            }
+
+            .code-box {
+                font-size: 36px;
+                padding: 15px 25px;
+                letter-spacing: 6px;
+            }
+
+            .step-header {
+                margin-bottom: 15px;
+            }
+
+            .back-btn {
+                width: 40px;
+                height: 40px;
+                font-size: 18px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .container {
+                padding: 20px 15px;
+            }
+
+            .header {
+                margin-bottom: 30px;
+            }
+
+            .header-title {
+                font-size: 20px;
+            }
+
+            .step {
+                padding: 20px;
+                margin-bottom: 20px;
+            }
+
+            .step h2 {
+                font-size: 20px;
+                margin-bottom: 20px;
+            }
+
+            .network-buttons {
+                gap: 10px;
+            }
+
+            .network-btn {
+                min-width: 120px;
+                padding: 12px 15px;
+                font-size: 14px;
+            }
+
+            .file-upload-area {
+                padding: 30px 15px;
+            }
+
+            .connection-tabs {
+                gap: 10px;
+            }
+
+            .tab-btn {
+                padding: 8px 12px;
+                font-size: 12px;
+            }
+
+            .qr-container {
+                width: 220px;
+                height: 220px;
+            }
+
+            .code-box {
+                font-size: 32px;
+                letter-spacing: 4px;
+                padding: 12px 20px;
+            }
+
+            .step-header {
+                gap: 10px;
+            }
+
+            .back-btn {
+                width: 38px;
+                height: 38px;
+                font-size: 16px;
+            }
+
+            .link-button-group {
+                gap: 8px;
+            }
+
+            .copy-link-btn {
+                padding: 10px 20px;
+                font-size: 12px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Animated Background -->
+    <div class="animated-background">
+        <div class="floating-orb orb1"></div>
+        <div class="floating-orb orb2"></div>
+        <div class="floating-orb orb3"></div>
+        <div class="floating-particle particle1"></div>
+        <div class="floating-particle particle2"></div>
+        <div class="floating-particle particle3"></div>
+    </div>
+
+    <!-- Main Container -->
+    <div class="container">
+        <!-- Header -->
+        <header class="header">
+            <div class="phoenix-circle">
+                <span class="phoenix-icon">🔥</span>
+            </div>
+            <h1 class="header-title">Phoenix Files and Data Transferring</h1>
+            <p class="header-subtitle">Secure, Fast, and Direct P2P File Transfer</p>
+        </header>
+
+        <!-- Main Content -->
+        <main class="main-content" id="mainContent">
+            <!-- Step 1: Network Selection -->
+            <section class="step network-selection" id="step1">
+                <h2>How would you like to transfer files?</h2>
+                <div class="network-buttons">
+                    <button class="network-btn internet-btn" onclick="selectNetwork('internet')">
+                        <span class="icon">🌐</span>
+                        <span class="label">Internet</span>
+                    </button>
+                    <button class="network-btn wifi-btn" onclick="selectNetwork('wifi')">
+                        <span class="icon">📡</span>
+                        <span class="label">Wi-Fi</span>
+                    </button>
+                </div>
+            </section>
+
+            <!-- Step 2: Connection Method -->
+            <section class="step connection-section" id="step2" style="display: none;">
+                <div class="step-header">
+                    <button class="back-btn" onclick="goBack()" title="Go Back">← Back</button>
+                    <div></div>
+                </div>
+                <h2>Connect Your Device</h2>
+                
+                <!-- Tabs -->
+                <div class="connection-tabs">
+                    <button class="tab-btn active" onclick="switchTab('qr')">📱 QR Code</button>
+                    <button class="tab-btn" onclick="switchTab('link')">🔗 Link</button>
+                    <button class="tab-btn" onclick="switchTab('code')">🔐 4-Digit Code</button>
+                </div>
+
+                <!-- QR Code Tab -->
+                <div class="tab-content active" id="qr-tab">
+                    <div class="qr-display-wrapper">
+                        <div>
+                            <p class="tab-label">📤 Share Your QR Code</p>
+                            <p style="font-size: 12px; color: var(--text-secondary); margin-bottom: 15px;">Others can scan this QR to connect with you</p>
+                        </div>
+                        <div class="qr-container">
+                            <canvas id="qrCanvas" width="250" height="250"></canvas>
+                        </div>
+                        <p class="qr-link">Link: <span id="qrLink" class="link-text">phoenixFADT.LOADING</span></p>
+                        <div class="link-button-group">
+                            <button class="copy-link-btn" onclick="copyQRLink()">
+                                <span>📋</span>
+                                <span>Copy Link</span>
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="tab-divider">
+                        <span class="tab-divider-text">OR</span>
+                    </div>
+
+                    <div class="scanner-section">
+                        <div style="width: 100%;">
+                            <p class="tab-label">📥 Scan QR Code</p>
+                            <p style="font-size: 12px; color: var(--text-secondary); margin-bottom: 20px;">Open your camera and scan someone else's QR code</p>
+                        </div>
+                        <button class="scan-btn" onclick="openScanner()">
+                            <span>📷</span>
+                            <span>Open Camera & Scan</span>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Link Tab -->
+                <div class="tab-content" id="link-tab">
+                    <p class="tab-label">Share this link:</p>
+                    <div class="link-display">
+                        <input type="text" class="link-input" id="linkInput" readonly>
+                        <button class="copy-btn" onclick="copyToClipboard()">📋 Copy</button>
+                    </div>
+                </div>
+
+                <!-- 4-Digit Code Tab -->
+                <div class="tab-content" id="code-tab">
+                    <p class="tab-label">Enter this 4-digit code on your device:</p>
+                    <div class="code-display">
+                        <div class="code-box" id="codeBox">0000</div>
+                    </div>
+                    <p class="code-hint">Or enter the code from another device:</p>
+                    <input type="text" class="code-input" id="codeInput" maxlength="4" placeholder="Enter code">
+                    <div class="validation-status" id="validationStatus"></div>
+                </div>
+
+                <!-- Connection Request (only shows after scan or after other side initiates) -->
+                <div class="connection-request-section" id="connectionRequest" style="display: none;">
+                    <div class="connection-request-title">
+                        <span>📞</span>
+                        <span>Connection Request Received</span>
+                    </div>
+                    <div class="connection-request-details">
+                        <div class="request-device-info">
+                            <div class="request-device-icon" id="requestDeviceIcon">📱</div>
+                            <div class="request-device-text">
+                                <div class="request-device-name">Connecting Device</div>
+                                <div class="request-device-id" id="requestDeviceId">phoenixFADT.abc12345</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="connection-actions">
+                        <button class="accept-btn" onclick="acceptConnection()">✓ Accept</button>
+                        <button class="reject-btn" onclick="rejectConnection()">✕ Decline</button>
+                    </div>
+                </div>
+
+                <!-- Connect Button -->
+                <button class="connect-btn" onclick="connectDevice()" id="connectButton">
+                    ✓ Connect Device
+                </button>
+            </section>
+
+            <!-- Step 3: Transfer Direction -->
+            <section class="step transfer-direction-section" id="step3" style="display: none;">
+                <div class="step-header">
+                    <button class="back-btn" onclick="goBack()" title="Go Back">← Back</button>
+                    <div></div>
+                </div>
+                <h2>Select Transfer Direction</h2>
+                
+                <div class="transfer-direction">
+                    <div class="device-selector">
+                        <label class="device-label">Transfer From:</label>
+                        <select class="device-dropdown" id="sourceDevice" onchange="updateDeviceDisplay()">
+                            <option value="mobile">📱 Mobile</option>
+                            <option value="pc">🖥️ PC</option>
+                            <option value="tablet">📱 Tablet</option>
+                        </select>
+                    </div>
+
+                    <div class="arrow-container">
+                        <button class="swap-btn" onclick="swapDevices()">⇅</button>
+                    </div>
+
+                    <div class="device-selector">
+                        <label class="device-label">Transfer To:</label>
+                        <select class="device-dropdown" id="destDevice" onchange="updateDeviceDisplay()">
+                            <option value="mobile">📱 Mobile</option>
+                            <option value="pc" selected>🖥️ PC</option>
+                            <option value="tablet">📱 Tablet</option>
+                        </select>
+                    </div>
+                </div>
+
+                <!-- Folder Selection (if PC is destination) -->
+                <div class="folder-selection" id="folderSelection">
+                    <button class="folder-btn" onclick="selectFolder()">📁 Select Save Folder</button>
+                    <p class="folder-info" id="folderInfo"></p>
+                </div>
+
+                <button class="next-btn" onclick="goToTransfer()">
+                    Next: Select Files →
+                </button>
+            </section>
+
+            <!-- Step 4: File Transfer -->
+            <section class="step file-transfer-section" id="step4" style="display: none;">
+                <div class="step-header">
+                    <button class="back-btn" onclick="goBack()" title="Go Back">← Back</button>
+                    <div></div>
+                </div>
+                <h2>Select Files to Transfer</h2>
+
+                <!-- File Upload Area -->
+                <div class="file-upload-area" id="uploadArea" ondrop="handleDrop(event)" ondragover="handleDragOver(event)" ondragleave="handleDragLeave(event)" onclick="document.getElementById('fileInput').click()">
+                    <div class="upload-content">
+                        <span class="upload-icon">📂</span>
+                        <p class="upload-text">Drag and drop files here</p>
+                        <p class="upload-subtext">or click to select files (unlimited size)</p>
+                    </div>
+                    <input type="file" id="fileInput" multiple style="display: none;" onchange="handleFileSelect(event)">
+                </div>
+
+                <!-- Selected Files List -->
+                <div class="selected-files" id="selectedFiles" style="display: none;">
+                    <h3>Selected Files:</h3>
+                    <div class="files-list" id="filesList"></div>
+                    <div class="files-info">
+                        <p>Total Files: <strong id="totalFiles">0</strong></p>
+                        <p>Total Size: <strong id="totalSize">0 MB</strong></p>
+                    </div>
+                </div>
+
+                <!-- Action Buttons -->
+                <div class="action-buttons">
+                    <button class="secondary-btn" onclick="clearFiles()">🗑️ Clear Files</button>
+                    <button class="primary-btn" onclick="startTransfer()" id="transferBtn" disabled>
+                        🚀 Start Transfer
+                    </button>
+                </div>
+            </section>
+
+            <!-- Step 5: Transfer Status -->
+            <section class="step transfer-status-section" id="step5" style="display: none;">
+                <h2>Transferring Files...</h2>
+
+                <!-- Progress Indicator -->
+                <div class="progress-container">
+                    <div class="progress-ring">
+                        <svg class="progress-svg" width="200" height="200" viewBox="0 0 200 200">
+                            <circle cx="100" cy="100" r="90" class="progress-bg"></circle>
+                            <circle cx="100" cy="100" r="90" class="progress-fill" id="progressFill"></circle>
+                        </svg>
+                        <div class="progress-text">
+                            <span class="progress-percentage" id="progressPercent">0%</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Transfer Info -->
+                <div class="transfer-info">
+                    <p>Speed: <strong id="transferSpeed">0 MB/s</strong></p>
+                    <p>Time Remaining: <strong id="timeRemaining">--:--</strong></p>
+                    <p id="transferStatus" class="status-text">Initializing...</p>
+                </div>
+
+                <!-- Transfer Details -->
+                <div class="transfer-details">
+                    <p>Current File: <strong id="currentFile">--</strong></p>
+                    <p>Files Transferred: <strong id="filesTransferred">0</strong>/<strong id="totalFilesTransfer">0</strong></p>
+                </div>
+
+                <!-- Cancel Button -->
+                <button class="cancel-btn" onclick="cancelTransfer()">✕ Cancel Transfer</button>
+            </section>
+
+            <!-- Step 6: Transfer Complete -->
+            <section class="step transfer-complete-section" id="step6" style="display: none;">
+                <div class="success-animation">
+                    <div class="checkmark">✓</div>
+                </div>
+                <h2>Transfer Complete!</h2>
+                <p class="complete-message">All files transferred successfully</p>
+                
+                <div class="complete-stats">
+                    <p>Files Transferred: <strong id="completeFiles">0</strong></p>
+                    <p>Total Data: <strong id="completeData">0 MB</strong></p>
+                    <p>Transfer Time: <strong id="completeTime">0s</strong></p>
+                    <p>Average Speed: <strong id="completeSpeed">0 MB/s</strong></p>
+                </div>
+
+                <div class="action-buttons">
+                    <button class="primary-btn" onclick="startNewTransfer()">
+                        ↻ New Transfer
+                    </button>
+                    <button class="secondary-btn" onclick="shareLink()">
+                        📤 Share This Connection
+                    </button>
+                </div>
+            </section>
+        </main>
+
+        <!-- Footer -->
+        <footer class="footer">
+            <div class="social-links">
+                <a href="https://instagram.com" class="social-link" target="_blank">📸 Instagram</a>
+                <a href="https://youtube.com" class="social-link" target="_blank">🎬 YouTube</a>
+            </div>
+            <p class="footer-text">© All rights reserved by PrimeV</p>
+        </footer>
+    </div>
+
+    <!-- Camera Modal -->
+    <div class="camera-modal" id="cameraModal">
+        <div class="camera-container">
+            <div class="camera-header">
+                <h3>📷 Scan QR Code</h3>
+                <button class="camera-close-btn" onclick="closeScanner()">✕</button>
+            </div>
+            <div class="camera-feed">
+                <video id="video" autoplay playsinline></video>
+                <div class="scanner-overlay">
+                    <div class="scanner-corner top-left"></div>
+                    <div class="scanner-corner top-right"></div>
+                    <div class="scanner-corner bottom-left"></div>
+                    <div class="scanner-corner bottom-right"></div>
+                    <div class="scanner-line"></div>
+                </div>
+            </div>
+            <div class="camera-controls">
+                <button class="camera-btn camera-btn-primary" onclick="captureQRFrame()">🔍 Capture & Scan</button>
+                <button class="camera-btn camera-btn-secondary" onclick="closeScanner()">✕ Close</button>
+            </div>
+            <div class="camera-status" id="cameraStatus">
+                Position QR code within the frame and click Capture or allow auto-scan
+            </div>
+        </div>
+    </div>
+
+    <!-- JavaScript -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/jsqr/dist/jsQR.js"></script>
+    
+    <script>
+        // State Management
+        let appState = {
+            networkMode: null,
+            connectionMethod: null,
+            deviceLink: null,
+            deviceCode: null,
+            sourceDevice: 'pc',
+            destDevice: 'mobile',
+            selectedFiles: [],
+            isTransferring: false,
+            transferProgress: 0,
+            transferStartTime: null,
+            scannedQRCode: null,
+            cameraStream: null,
+            isScanning: false,
+            navigationHistory: []
+        };
+
+        // Navigation History
+        let pageHistory = ['step1'];
+        let currentPage = 'step1';
+
+        // Generate Random Anonymous Link
+        function generateAnonymousLink() {
+            const randomChars = Math.random().toString(36).substring(2, 10);
+            return `phoenixFADT.${randomChars}`;
+        }
+
+        // Generate 4-Digit Code
+        function generateRandomCode() {
+            return Math.floor(1000 + Math.random() * 9000).toString();
+        }
+
+        // Generate QR Code using QRCode.js library
+        function generateQRCode(text) {
+            const qrCanvas = document.getElementById('qrCanvas');
+            qrCanvas.innerHTML = '';
+            
+            new QRCode(qrCanvas, {
+                text: text,
+                width: 250,
+                height: 250,
+                colorDark: '#06b6d4',
+                colorLight: '#0a0e27',
+                correctLevel: QRCode.CorrectLevel.H
+            });
+        }
+
+        // Show Step with History
+        function showStep(stepId) {
+            // Hide all steps
+            document.querySelectorAll('.step').forEach(step => {
+                step.style.display = 'none';
+            });
+            
+            // Show selected step
+            document.getElementById(stepId).style.display = 'block';
+            
+            // Update history
+            if (currentPage !== stepId) {
+                pageHistory.push(stepId);
+                currentPage = stepId;
+            }
+            
+            // Scroll to top
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        // Go Back
+        function goBack() {
+            if (pageHistory.length > 1) {
+                pageHistory.pop();
+                const previousPage = pageHistory[pageHistory.length - 1];
+                currentPage = previousPage;
+                
+                // Hide all steps
+                document.querySelectorAll('.step').forEach(step => {
+                    step.style.display = 'none';
+                });
+                
+                // Show previous step
+                document.getElementById(previousPage).style.display = 'block';
+                
+                // Close scanner if open
+                closeScanner();
+                
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+            }
+        }
+
+        // Select Network Mode
+        function selectNetwork(mode) {
+            appState.networkMode = mode;
+            
+            // Initialize connection data
+            appState.deviceLink = generateAnonymousLink();
+            appState.deviceCode = generateRandomCode();
+            
+            // Set link input
+            document.getElementById('linkInput').value = appState.deviceLink;
+            document.getElementById('qrLink').textContent = appState.deviceLink;
+            document.getElementById('codeBox').textContent = appState.deviceCode;
+            
+            // Generate QR Code
+            generateQRCode(appState.deviceLink);
+            
+            showStep('step2');
+        }
+
+        // Switch Tab
+        function switchTab(tabName) {
+            // Hide all tabs
+            document.querySelectorAll('.tab-content').forEach(tab => {
+                tab.classList.remove('active');
+            });
+            
+            // Remove active from all buttons
+            document.querySelectorAll('.tab-btn').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            
+            // Show selected tab
+            document.getElementById(tabName + '-tab').classList.add('active');
+            event.target.classList.add('active');
+            
+            appState.connectionMethod = tabName;
+        }
+
+        // Copy QR Link
+        function copyQRLink() {
+            const link = appState.deviceLink;
+            navigator.clipboard.writeText(link).then(() => {
+                const btn = event.target.closest('.copy-link-btn');
+                const originalText = btn.innerHTML;
+                btn.innerHTML = '<span>✓</span><span>Copied!</span>';
+                
+                setTimeout(() => {
+                    btn.innerHTML = originalText;
+                }, 2000);
+            });
+        }
+
+        // Copy to Clipboard
+        function copyToClipboard() {
+            const linkInput = document.getElementById('linkInput');
+            linkInput.select();
+            document.execCommand('copy');
+            
+            const btn = event.target;
+            const originalText = btn.textContent;
+            btn.textContent = '✓ Copied!';
+            
+            setTimeout(() => {
+                btn.textContent = originalText;
+            }, 2000);
+        }
+
+        // Open Scanner
+        function openScanner() {
+            const cameraModal = document.getElementById('cameraModal');
+            cameraModal.classList.add('active');
+            
+            // Request camera access
+            navigator.mediaDevices.getUserMedia({ 
+                video: { 
+                    facingMode: 'environment',
+                    width: { ideal: 1280 },
+                    height: { ideal: 720 }
+                } 
+            })
+            .then(stream => {
+                appState.cameraStream = stream;
+                const video = document.getElementById('video');
+                video.srcObject = stream;
+                appState.isScanning = true;
+                
+                // Auto-scan frames
+                autoScanFrames();
+            })
+            .catch(err => {
+                console.error('Error accessing camera:', err);
+                updateCameraStatus('❌ Camera access denied. Please check permissions.');
+            });
+        }
+
+        // Auto Scan Frames
+        function autoScanFrames() {
+            const video = document.getElementById('video');
+            const canvas = document.createElement('canvas');
+            const ctx = canvas.getContext('2d');
+            
+            const scanInterval = setInterval(() => {
+                if (!appState.isScanning) {
+                    clearInterval(scanInterval);
+                    return;
+                }
+                
+                if (video.readyState === video.HAVE_ENOUGH_DATA) {
+                    canvas.width = video.videoWidth;
+                    canvas.height = video.videoHeight;
+                    ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+                    
+                    try {
+                        const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+                        const code = jsQR(imageData.data, imageData.width, imageData.height);
+                        
+                        if (code && code.data) {
+                            if (code.data.includes('phoenixFADT')) {
+                                appState.scannedQRCode = code.data;
+                                handleQRScanned(code.data);
+                                clearInterval(scanInterval);
+                            }
+                        }
+                    } catch (err) {
+                        console.log('QR code not detected yet');
+                    }
+                }
+            }, 500);
+        }
+
+        // Capture QR Frame Manually
+        function captureQRFrame() {
+            const video = document.getElementById('video');
+            const canvas = document.createElement('canvas');
+            const ctx = canvas.getContext('2d');
+            
+            canvas.width = video.videoWidth;
+            canvas.height = video.videoHeight;
+            ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+            
+            try {
+                const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+                const code = jsQR(imageData.data, imageData.width, imageData.height);
+                
+                if (code && code.data) {
+                    if (code.data.includes('phoenixFADT')) {
+                        appState.scannedQRCode = code.data;
+                        handleQRScanned(code.data);
+                    } else {
+                        updateCameraStatus('⚠️ Invalid QR code. Please scan a Phoenix Files QR code.');
+                    }
+                } else {
+                    updateCameraStatus('⚠️ No QR code detected. Please try again.');
+                }
+            } catch (err) {
+                console.error('Error scanning QR:', err);
+                updateCameraStatus('❌ Error scanning QR code. Please try again.');
+            }
+        }
+
+        // Handle QR Scanned
+        function handleQRScanned(qrData) {
+            appState.scannedQRCode = qrData;
+            updateCameraStatus('✓ QR Code scanned successfully! Processing...');
+            
+            setTimeout(() => {
+                closeScanner();
+                showConnectionRequest(qrData);
+            }, 1500);
+        }
+
+        // Show Connection Request
+        function showConnectionRequest(deviceId) {
+            const connectionRequest = document.getElementById('connectionRequest');
+            document.getElementById('requestDeviceId').textContent = deviceId;
+            connectionRequest.style.display = 'block';
+            
+            // Scroll to show the connection request
+            window.scrollTo({ top: connectionRequest.offsetTop - 100, behavior: 'smooth' });
+        }
+
+        // Accept Connection
+        function acceptConnection() {
+            const connectionRequest = document.getElementById('connectionRequest');
+            
+            // Show success animation
+            const statusDiv = document.createElement('div');
+            statusDiv.className = 'connection-status';
+            statusDiv.style.cssText = `
+                position: fixed;
+                top: 50%;
+                left: 50%;
+                transform: translate(-50%, -50%);
+                background: rgba(16, 185, 129, 0.2);
+                border: 2px solid var(--accent-green);
+                border-radius: 12px;
+                padding: 30px;
+                text-align: center;
+                z-index: 1000;
+                animation: slideUp 0.5s ease-out;
+                min-width: 300px;
+            `;
+            statusDiv.innerHTML = `
+                <div style="font-size: 40px; margin-bottom: 15px; animation: float-icon 3s ease-in-out infinite;">✓</div>
+                <p style="font-size: 18px; font-weight: 600; color: var(--accent-green);">Connection Accepted!</p>
+                <p style="font-size: 14px; color: var(--text-secondary); margin-top: 10px;">Device connected successfully</p>
+            `;
+            document.body.appendChild(statusDiv);
+            
+            // Hide connection request
+            connectionRequest.style.display = 'none';
+            
+            setTimeout(() => {
+                statusDiv.remove();
+                pageHistory = ['step1', 'step2', 'step3'];
+                currentPage = 'step3';
+                showStep('step3');
+            }, 2000);
+        }
+
+        // Reject Connection
+        function rejectConnection() {
+            const connectionRequest = document.getElementById('connectionRequest');
+            connectionRequest.style.display = 'none';
+            
+            updateCameraStatus('Connection declined');
+            
+            setTimeout(() => {
+                appState.scannedQRCode = null;
+            }, 1000);
+        }
+
+        // Close Scanner
+        function closeScanner() {
+            const cameraModal = document.getElementById('cameraModal');
+            cameraModal.classList.remove('active');
+            appState.isScanning = false;
+            
+            if (appState.cameraStream) {
+                appState.cameraStream.getTracks().forEach(track => track.stop());
+                appState.cameraStream = null;
+            }
+        }
+
+        // Update Camera Status
+        function updateCameraStatus(message) {
+            document.getElementById('cameraStatus').textContent = message;
+        }
+
+        // Validate Code Input
+        document.addEventListener('DOMContentLoaded', function() {
+            const codeInput = document.getElementById('codeInput');
+            
+            if (codeInput) {
+                codeInput.addEventListener('input', function() {
+                    const inputCode = this.value;
+                    const validationStatus = document.getElementById('validationStatus');
+                    
+                    if (inputCode.length === 4) {
+                        if (inputCode === appState.deviceCode) {
+                            validationStatus.innerHTML = '<span style="color: var(--accent-green); display: flex; align-items: center; gap: 5px;"><span>✓</span> Code verified!</span>';
+                            validationStatus.classList.add('success');
+                            validationStatus.classList.remove('error');
+                        } else {
+                            validationStatus.innerHTML = '<span style="color: var(--accent-pink); display: flex; align-items: center; gap: 5px;"><span>✕</span> Incorrect code</span>';
+                            validationStatus.classList.add('error');
+                            validationStatus.classList.remove('success');
+                        }
+                    } else {
+                        validationStatus.innerHTML = '';
+                    }
+                });
+            }
+        });
+
+        // Connect Device
+        function connectDevice() {
+            const validationStatus = document.getElementById('validationStatus');
+            
+            // Check validation for code method
+            if (appState.connectionMethod === 'code') {
+                if (!validationStatus.classList.contains('success')) {
+                    alert('Please enter a valid code');
+                    return;
+                }
+            }
+            
+            // Show connection success
+            const statusDiv = document.createElement('div');
+            statusDiv.className = 'connection-status';
+            statusDiv.style.cssText = `
+                position: fixed;
+                top: 50%;
+                left: 50%;
+                transform: translate(-50%, -50%);
+                background: rgba(16, 185, 129, 0.2);
+                border: 2px solid var(--accent-green);
+                border-radius: 12px;
+                padding: 30px;
+                text-align: center;
+                z-index: 1000;
+                animation: slideUp 0.5s ease-out;
+                min-width: 300px;
+            `;
+            statusDiv.innerHTML = `
+                <div style="font-size: 40px; margin-bottom: 15px;">✓</div>
+                <p style="font-size: 18px; font-weight: 600; color: var(--accent-green);">Device Connected!</p>
+                <p style="font-size: 14px; color: var(--text-secondary); margin-top: 10px;">Proceeding to transfer setup...</p>
+            `;
+            document.body.appendChild(statusDiv);
+            
+            setTimeout(() => {
+                statusDiv.remove();
+                pageHistory = ['step1', 'step2', 'step3'];
+                currentPage = 'step3';
+                showStep('step3');
+            }, 1500);
+        }
+
+        // Update Device Display
+        function updateDeviceDisplay() {
+            appState.sourceDevice = document.getElementById('sourceDevice').value;
+            appState.destDevice = document.getElementById('destDevice').value;
+            
+            // Show/hide folder selection
+            const folderSelection = document.getElementById('folderSelection');
+            if (appState.destDevice === 'pc') {
+                folderSelection.style.display = 'block';
+            } else {
+                folderSelection.style.display = 'none';
+            }
+        }
+
+        // Swap Devices
+        function swapDevices() {
+            [appState.sourceDevice, appState.destDevice] = [appState.destDevice, appState.sourceDevice];
+            
+            document.getElementById('sourceDevice').value = appState.sourceDevice;
+            document.getElementById('destDevice').value = appState.destDevice;
+            
+            updateDeviceDisplay();
+        }
+
+        // Select Folder
+        function selectFolder() {
+            const folderName = prompt('Enter folder path (or just press OK for default):', 'Downloads');
+            
+            if (folderName !== null) {
+                document.getElementById('folderInfo').textContent = `📁 Folder: ${folderName || 'Default'}`;
+            }
+        }
+
+        // Go to Transfer
+        function goToTransfer() {
+            pageHistory.push('step4');
+            currentPage = 'step4';
+            showStep('step4');
+        }
+
+        // File Upload Handlers
+        function handleDragOver(e) {
+            e.preventDefault();
+            e.stopPropagation();
+            document.getElementById('uploadArea').classList.add('drag-over');
+        }
+
+        function handleDragLeave(e) {
+            e.preventDefault();
+            e.stopPropagation();
+            document.getElementById('uploadArea').classList.remove('drag-over');
+        }
+
+        function handleDrop(e) {
+            e.preventDefault();
+            e.stopPropagation();
+            document.getElementById('uploadArea').classList.remove('drag-over');
+            
+            const files = e.dataTransfer.files;
+            handleFiles(files);
+        }
+
+        function handleFileSelect(e) {
+            const files = e.target.files;
+            handleFiles(files);
+        }
+
+        function handleFiles(files) {
+            appState.selectedFiles = Array.from(files);
+            updateFileList();
+        }
+
+        function updateFileList() {
+            const filesList = document.getElementById('filesList');
+            const selectedFilesDiv = document.getElementById('selectedFiles');
+            
+            if (appState.selectedFiles.length === 0) {
+                selectedFilesDiv.style.display = 'none';
+                document.getElementById('transferBtn').disabled = true;
+                return;
+            }
+            
+            selectedFilesDiv.style.display = 'block';
+            document.getElementById('transferBtn').disabled = false;
+            
+            filesList.innerHTML = '';
+            let totalSize = 0;
+            
+            appState.selectedFiles.forEach(file => {
+                const fileSize = (file.size / (1024 * 1024)).toFixed(2);
+                totalSize += file.size;
+                
+                const fileItem = document.createElement('div');
+                fileItem.className = 'file-item';
+                fileItem.innerHTML = `
+                    <span>📄</span>
+                    <span class="file-item-name">${file.name}</span>
+                    <span class="file-item-size">${fileSize} MB</span>
+                `;
+                
+                filesList.appendChild(fileItem);
+            });
+            
+            document.getElementById('totalFiles').textContent = appState.selectedFiles.length;
+            document.getElementById('totalSize').textContent = (totalSize / (1024 * 1024)).toFixed(2) + ' MB';
+        }
+
+        function clearFiles() {
+            appState.selectedFiles = [];
+            document.getElementById('fileInput').value = '';
+            updateFileList();
+        }
+
+        // Start Transfer
+        function startTransfer() {
+            pageHistory.push('step5');
+            currentPage = 'step5';
+            showStep('step5');
+            
+            appState.isTransferring = true;
+            appState.transferStartTime = Date.now();
+            appState.transferProgress = 0;
+            
+            // Update total files
+            document.getElementById('totalFilesTransfer').textContent = appState.selectedFiles.length;
+            
+            // Simulate file transfer
+            simulateTransfer();
+        }
+
+        function simulateTransfer() {
+            const interval = setInterval(() => {
+                if (!appState.isTransferring) {
+                    clearInterval(interval);
+                    return;
+                }
+                
+                // Simulate progress (0-99%)
+                if (appState.transferProgress < 99) {
+                    appState.transferProgress += Math.random() * 15;
+                    if (appState.transferProgress > 99) {
+                        appState.transferProgress = 99;
+                    }
+                }
+                
+                // Update UI
+                updateProgressUI();
+                
+                // Check if transfer is "complete"
+                if (appState.transferProgress >= 99) {
+                    clearInterval(interval);
+                    completeTransfer();
+                }
+            }, 500);
+        }
+
+        function updateProgressUI() {
+            const percentage = Math.round(appState.transferProgress);
+            
+            // Update percentage
+            document.getElementById('progressPercent').textContent = percentage + '%';
+            
+            // Update SVG circle
+            const circle = document.getElementById('progressFill');
+            const circumference = 2 * Math.PI * 90;
+            const offset = circumference - (percentage / 100) * circumference;
+            circle.style.strokeDashoffset = offset;
+            
+            // Update speed and time
+            const elapsed = (Date.now() - appState.transferStartTime) / 1000;
+            const totalSize = appState.selectedFiles.reduce((sum, file) => sum + file.size, 0) / (1024 * 1024);
+            const transferred = (totalSize * appState.transferProgress) / 100;
+            const speed = transferred / elapsed;
+            const remaining = (totalSize - transferred) / speed;
+            
+            document.getElementById('transferSpeed').textContent = speed.toFixed(2) + ' MB/s';
+            document.getElementById('timeRemaining').textContent = formatTime(remaining);
+            
+            // Update current file
+            const currentFileIndex = Math.floor((appState.transferProgress / 100) * appState.selectedFiles.length);
+            if (currentFileIndex < appState.selectedFiles.length) {
+                document.getElementById('currentFile').textContent = appState.selectedFiles[currentFileIndex].name;
+                document.getElementById('filesTransferred').textContent = Math.min(currentFileIndex + 1, appState.selectedFiles.length);
+            }
+        }
+
+        function formatTime(seconds) {
+            const mins = Math.floor(seconds / 60);
+            const secs = Math.floor(seconds % 60);
+            return `${mins}:${secs.toString().padStart(2, '0')}`;
+        }
+
+        function cancelTransfer() {
+            appState.isTransferring = false;
+            
+            // Show confirmation
+            if (confirm('Are you sure you want to cancel the transfer?')) {
+                pageHistory = pageHistory.slice(0, -1);
+                currentPage = pageHistory[pageHistory.length - 1];
+                showStep('step4');
+            } else {
+                appState.isTransferring = true;
+            }
+        }
+
+        function completeTransfer() {
+            appState.isTransferring = false;
+            appState.transferProgress = 100;
+            
+            document.getElementById('progressPercent').textContent = '100%';
+            
+            const totalSize = appState.selectedFiles.reduce((sum, file) => sum + file.size, 0);
+            const elapsed = (Date.now() - appState.transferStartTime) / 1000;
+            const speed = (totalSize / (1024 * 1024)) / elapsed;
+            
+            setTimeout(() => {
+                pageHistory.push('step6');
+                currentPage = 'step6';
+                showStep('step6');
+                
+                // Update completion stats
+                document.getElementById('completeFiles').textContent = appState.selectedFiles.length;
+                document.getElementById('completeData').textContent = (totalSize / (1024 * 1024)).toFixed(2);
+                document.getElementById('completeTime').textContent = Math.round(elapsed) + 's';
+                document.getElementById('completeSpeed').textContent = speed.toFixed(2) + ' MB/s';
+            }, 800);
+        }
+
+        // New Transfer
+        function startNewTransfer() {
+            appState = {
+                networkMode: null,
+                connectionMethod: null,
+                deviceLink: null,
+                deviceCode: null,
+                sourceDevice: 'pc',
+                destDevice: 'mobile',
+                selectedFiles: [],
+                isTransferring: false,
+                transferProgress: 0,
+                transferStartTime: null,
+                scannedQRCode: null,
+                cameraStream: null,
+                isScanning: false,
+                navigationHistory: []
+            };
+            
+            pageHistory = ['step1'];
+            currentPage = 'step1';
+            
+            document.querySelectorAll('.step').forEach(step => {
+                step.style.display = 'none';
+            });
+            document.getElementById('step1').style.display = 'block';
+            
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        // Share Link
+        function shareLink() {
+            const link = appState.deviceLink;
+            const text = `Check out Phoenix Files Transfer! Connect here: ${link}`;
+            
+            if (navigator.share) {
+                navigator.share({
+                    title: 'Phoenix Files Transfer',
+                    text: text,
+                    url: window.location.href
+                });
+            } else {
+                alert('Copy this link: ' + link);
+                navigator.clipboard.writeText(link);
+            }
+        }
+
+        // Initialize on page load
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('🔥 Phoenix Files Transfer - Ready!');
+            updateDeviceDisplay();
+        });
+    </script>
+</body>
+</html>
